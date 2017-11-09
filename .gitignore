@@ -1,0 +1,14 @@
+#### Binary Files
+*.exe
+*.dll
+*.lib
+
+#### Java Binary Files
+*.class
+*.jar
+
+#### C# Files
+*.ilk
+
+#### Vim Files
+*.swp
