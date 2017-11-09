@@ -35,4 +35,4 @@ run: $(MAIN).class
 	$(JVM) $(MAIN)
 
 clean:
-	rmdir /s /q \Source\Java\bin\game
+	rmdir /s /q ..\bin\game
