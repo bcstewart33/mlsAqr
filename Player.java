@@ -19,12 +19,6 @@ import game.aqr.Database;
 import game.aqr.Board;
 import game.aqr.Company;
 
-// Global Variables
-//extern   GameBoard *board;
-//extern   Company   *_company[MAXCOMPS];
-//extern   Player    *players[MAXPLAYERS];
-//extern   int        currentPlayer;
-
 public class Player {
 
     private Runtime __runtime;

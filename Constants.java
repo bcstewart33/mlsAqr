@@ -25,7 +25,7 @@ public abstract class Constants {
     public static final int PROFIT_START = 10000;
 
     public static final int MAX_NAME_LENGTH = 15;
-    public static final int MAX_NUM_TURNS = 54;
+    public static final int MAX_NUM_TURNS = (MAX_COL * MAX_ROW) + 1; //54
     public static final int MAX_NUM_TILES = 6;
 
     public enum Type {

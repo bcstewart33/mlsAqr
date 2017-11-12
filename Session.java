@@ -112,7 +112,7 @@ public class Session {
 
     protected void _checkForGameEnd () {
 
-        if (__companyExt.canGameEnd ()) {
+        if (__boardExt.canGameEnd() || __companyExt.canGameEnd ()) {
 
             System.out.println ("DEBUG: Declare Game Over");
             __runtime.setGameOver (true);

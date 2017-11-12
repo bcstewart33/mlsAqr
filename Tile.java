@@ -75,6 +75,8 @@ public abstract class Tile {
             return result;
         }
 
+        public void clear () { _col = 0; _row = 0; }
+
         public void copy (int col, int row) {
 
             _col = col;

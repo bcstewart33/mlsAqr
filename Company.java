@@ -273,7 +273,7 @@ public class Company {
             }
             else if (!result && allSafe && openCount > 0) {
 
-                System.out.println ("DEBUG: Game Can End, All Companyies Safe");
+                System.out.println ("DEBUG: Game Can End, All Companies Safe");
                 result = true;
             }
         }

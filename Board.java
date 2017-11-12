@@ -40,10 +40,17 @@ public class Board {
     Tile.Queue __tileQueue = null;
     Stack __undoStack = null;
 
+    Tile.Location[] __adj = new Tile.Location[4];      //Adjacency array
+    Tile.Location[] __nextadj = new Tile.Location[3];  //Next to the adjacency points array
+
+
     public Board (Database data)
     {
         __data = data;
         __undoStack = new Stack<Tile.Location> ();
+
+        for (int ix = 0; ix < 4; ix++) { __adj[ix] = new Tile.Location (); }
+        for (int jx = 0; jx < 3; jx++) { __nextadj[jx] = new Tile.Location (); }
     }
 
     //Private Methods
@@ -209,131 +216,6 @@ public class Board {
     }
     */
 
-    // This routine determines if the given point will start a
-    // company on the board.
-    public boolean willTileStartCompany (Tile.LocationConst location) {
-
-        boolean result = true;
-
-        Tile.Location[] adj = new Tile.Location[4];      //Adjacency array
-        Tile.Location[] nextadj = new Tile.Location[3];  //Next to the adjacency points array
-
-        //Get all adjacent points
-        if (location.getCol () == 1) {
-
-            adj[Direction.LFT.ordinal ()].setCol (0);
-            adj[Direction.LFT.ordinal ()].setRow (0);
-        }
-        else {
-
-            adj[Direction.LFT.ordinal ()].decrCol (1);
-            adj[Direction.LFT.ordinal ()].setRow (location.getRow ());
-        }
-
-        if (location.getCol () == Constants.MAX_COL) {
-
-            adj[Direction.RHT.ordinal ()].setCol (0);
-            adj[Direction.RHT.ordinal ()].setRow (0);
-        }
-        else {
-
-            adj[Direction.RHT.ordinal ()].incrCol (1);
-            adj[Direction.RHT.ordinal ()].setRow (location.getRow ());
-        }
-
-        if (location.getRow () == 1) {
-
-            adj[Direction.TOP.ordinal ()].setCol (0);
-            adj[Direction.TOP.ordinal ()].setRow (0);
-        }
-        else {
-
-            adj[Direction.TOP.ordinal ()].setCol (location.getCol ());
-            adj[Direction.TOP.ordinal ()].decrRow (1);
-        }
-
-        if (location.getRow () == Constants.MAX_ROW) {
-
-            adj[Direction.BOT.ordinal ()].setCol (0);
-            adj[Direction.BOT.ordinal ()].setRow (0);
-        }
-        else {
-
-            adj[Direction.BOT.ordinal ()].setCol (location.getCol ());
-            adj[Direction.BOT.ordinal ()].incrRow (1);
-        }
-
-        // If the given tile is company then exit & return FALSE
-        if (__isTileAHotel (location)) {
-
-            result = false;
-        }
-        else {
-            // If any of the adjacent cells is in a company then exit and
-            // return FALSE
-            for (Direction ix : Direction.values ()) {
-
-                if (__isTileAHotel (adj[ix.ordinal ()])) {
-
-                    result = false; break;
-                }
-            }
-
-            if (result) {
-
-                result = false;
-
-                // Continue Checking now that you know all points are not
-                // part of a company
-                if (!result && adj[Direction.LFT.ordinal ()].getCol () != 0) {
-
-                    nextadj[0].copy (adj[Direction.LFT.ordinal ()]); nextadj[0].decrCol (1);
-                    nextadj[1].copy (adj[Direction.LFT.ordinal ()]); nextadj[1].decrRow (1);
-                    nextadj[2].copy (adj[Direction.LFT.ordinal ()]); nextadj[2].incrRow (1);
-
-                    if (!__isTileAHotel (nextadj[0]) &&
-                        !__isTileAHotel (nextadj[1]) &&
-                        !__isTileAHotel (nextadj[2])) { result = true; }
-                }
-
-                if (!result && adj[Direction.RHT.ordinal ()].getCol () != 0) {
-
-                    nextadj[0].copy (adj[Direction.RHT.ordinal ()]); nextadj[0].incrCol (1);
-                    nextadj[1].copy (adj[Direction.RHT.ordinal ()]); nextadj[1].decrRow (1);
-                    nextadj[2].copy (adj[Direction.RHT.ordinal ()]); nextadj[2].incrRow (1);
-
-                    if (!__isTileAHotel (nextadj[0]) &&
-                        !__isTileAHotel (nextadj[1]) &&
-                        !__isTileAHotel (nextadj[2])) { result = true; }
-                }
-
-                if (!result && adj[Direction.TOP.ordinal ()].getCol () != 0) {
-
-                    nextadj[0].copy (adj[Direction.TOP.ordinal ()]); nextadj[0].decrCol (1);
-                    nextadj[1].copy (adj[Direction.TOP.ordinal ()]); nextadj[1].incrCol (1);
-                    nextadj[2].copy (adj[Direction.TOP.ordinal ()]); nextadj[2].decrRow (1);
-
-                    if (!__isTileAHotel (nextadj[0]) &&
-                        !__isTileAHotel (nextadj[1]) &&
-                        !__isTileAHotel (nextadj[2])) { result = true; }
-                }
-
-                if (!result && adj[Direction.BOT.ordinal ()].getCol () != 0) {
-
-                    nextadj[0].copy (adj[Direction.BOT.ordinal ()]); nextadj[0].decrCol (1);
-                    nextadj[1].copy (adj[Direction.BOT.ordinal ()]); nextadj[1].incrCol (1);
-                    nextadj[2].copy (adj[Direction.BOT.ordinal ()]); nextadj[2].incrRow (1);
-
-                    if (!__isTileAHotel (nextadj[0]) &&
-                        !__isTileAHotel (nextadj[1]) &&
-                        !__isTileAHotel (nextadj[2])) { result = true; }
-                }
-            }
-        }
-
-        return result;
-    }
-
     private boolean __isTileUndefined (Tile.Piece tile)
     {
         boolean result = true;
@@ -476,6 +358,125 @@ System.out.println ("DBG: company " + company.get ().ordinal ());
         return status;
     }
 
+    // This routine determines if the given point will start a
+    // company on the board.
+    private boolean __willTileStartCompany (Tile.LocationConst location) {
+
+        boolean result = true;
+
+        for (int ix = 0; ix < 4; ix++) { __adj[ix].clear (); }
+        for (int jx = 0; jx < 3; jx++) { __nextadj[jx].clear (); }
+
+        int col = location.getCol ();
+        int row = location.getRow ();
+
+        //Get all adjacent points
+        if (col == 1) { ; }
+        else {
+
+            __adj[Direction.LFT.ordinal ()].setCol (col - 1);
+            __adj[Direction.LFT.ordinal ()].setRow (location.getRow ());
+        }
+
+        if (col == Constants.MAX_COL) { ; }
+        else {
+
+            __adj[Direction.RHT.ordinal ()].setCol (col + 1);
+            __adj[Direction.RHT.ordinal ()].setRow (location.getRow ());
+        }
+
+        if (row == 1) { ; }
+        else {
+
+            __adj[Direction.TOP.ordinal ()].setCol (location.getCol ());
+            __adj[Direction.TOP.ordinal ()].setRow (row - 1);
+        }
+
+        if (row == Constants.MAX_ROW) { ; }
+        else {
+
+            __adj[Direction.BOT.ordinal ()].setCol (location.getCol ());
+            __adj[Direction.BOT.ordinal ()].setRow (row + 1);
+        }
+
+//System.out.print ("DEBUG: board.willTile [" + col + ", " + row + "] -> adjacent[");
+//for (int ix = 0; ix < 4; ix++) {        
+//    System.out.print ("(" + __adj[ix].getCol () + ", " + __adj[ix].getRow () + ")");
+//}
+//System.out.println ("]");
+
+        // If the given tile is company then exit & return FALSE
+        if (__isTileAHotel (location)) {
+
+            result = false;
+        }
+        else {
+            // If any of the adjacent cells is in a company then exit and
+            // return FALSE
+            for (Direction ix : Direction.values ()) {
+
+                if (__isTileAHotel (__adj[ix.ordinal ()])) {
+
+                    result = false; break;
+                }
+            }
+
+            if (result) {
+
+                result = false;
+
+                // Continue Checking now that you know all points are not
+                // part of a company
+                if (!result && __adj[Direction.LFT.ordinal ()].getCol () != 0) {
+
+                    __nextadj[0].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[0].decrCol (1);
+                    __nextadj[1].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[1].decrRow (1);
+                    __nextadj[2].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[2].incrRow (1);
+
+                    if (!__isTileAHotel (__nextadj[0]) &&
+                        !__isTileAHotel (__nextadj[1]) &&
+                        !__isTileAHotel (__nextadj[2])) { result = true; }
+                }
+
+                if (!result && __adj[Direction.RHT.ordinal ()].getCol () != 0) {
+
+                    __nextadj[0].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[0].incrCol (1);
+                    __nextadj[1].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[1].decrRow (1);
+                    __nextadj[2].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[2].incrRow (1);
+
+                    if (!__isTileAHotel (__nextadj[0]) &&
+                        !__isTileAHotel (__nextadj[1]) &&
+                        !__isTileAHotel (__nextadj[2])) { result = true; }
+                }
+
+                if (!result && __adj[Direction.TOP.ordinal ()].getCol () != 0) {
+
+                    __nextadj[0].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[0].decrCol (1);
+                    __nextadj[1].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[1].incrCol (1);
+                    __nextadj[2].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[2].decrRow (1);
+
+                    if (!__isTileAHotel (__nextadj[0]) &&
+                        !__isTileAHotel (__nextadj[1]) &&
+                        !__isTileAHotel (__nextadj[2])) { result = true; }
+                }
+
+                if (!result && __adj[Direction.BOT.ordinal ()].getCol () != 0) {
+
+                    __nextadj[0].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[0].decrCol (1);
+                    __nextadj[1].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[1].incrCol (1);
+                    __nextadj[2].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[2].incrRow (1);
+
+                    if (!__isTileAHotel (__nextadj[0]) &&
+                        !__isTileAHotel (__nextadj[1]) &&
+                        !__isTileAHotel (__nextadj[2])) { result = true; }
+                }
+            }
+        }
+
+//System.out.println ("DEBUG:      .willTile Result: " + (result ? "T" : "F"));
+        return result;
+    }
+
     public boolean canGameEnd () {
 
         boolean result = false;
@@ -489,13 +490,13 @@ System.out.println ("DBG: company " + company.get ().ordinal ());
             Tile.Location loc = new Tile.Location ();
 
             //Determine if a company can be started
-            for (int col = 1; col < Constants.MAX_COL + 1; col++) {
+            for (int col = 1; col <= Constants.MAX_COL; col++) {
 
-                for (int row = 1; row < Constants.MAX_ROW + 1; row++) {
+                for (int row = 1; row <= Constants.MAX_ROW; row++) {
 
                     loc.copy (col, row);
 
-                    if (willTileStartCompany (loc)) {
+                    if (__willTileStartCompany (loc)) {
 
                         result = true;
 
@@ -506,6 +507,9 @@ System.out.println ("DBG: company " + company.get ().ordinal ());
             }
         }   
 
+if (result) {
+    System.out.println ("DEBUG: Game Can End, no place to start new company");
+}
         return result;
     }
 };

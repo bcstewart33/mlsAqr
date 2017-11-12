@@ -9,7 +9,9 @@
 
 package game.aqr.interact;
 
-import java.io.Console;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicReference;
 
 import game.aqr.Constants;
@@ -25,7 +27,7 @@ public class Dummy implements Interaction {
     private static final char[] CHARS = {'-', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
     private static final char[] COMP = {'.', 'C', 'I', 'A', 'F', 'W', 'L', 'T', 'X', '?'};
 
-    private Console __console;
+    private BufferedReader __buffRead;
     private Runtime __runtime;
     private Database __data;
     private Board __board;
@@ -35,12 +37,19 @@ public class Dummy implements Interaction {
 
     public Dummy (Runtime runtime, Database data, Board board) {
 
-        __console = System.console();
+        __buffRead = new BufferedReader (new InputStreamReader(System.in));
+
         __runtime = runtime;
         __data = data;
         __board = board;
 
         __Instantiate ();
+    }
+
+    public void finalize () {
+
+        try { if (__buffRead != null) { __buffRead.close (); } }
+        catch (IOException e) { e.printStackTrace (); }
     }
 
     private void __Instantiate () {
@@ -111,9 +120,17 @@ public class Dummy implements Interaction {
     public Tile.LocationConst selectATile () {
 
         __showBoard ();
+/*
+        if (__buffRead != null) {
+            
+            try {
 
-        if (__console != null) { String ipt = __console.readLine ("Press Enter:"); }
-
+                System.out.print ("Press Enter:");
+                String ipt = __buffRead.readLine ();
+            }
+            catch (IOException e) { e.printStackTrace (); }
+        }
+*/
         __selectedLoc = __tileQueue.getNextTile ();
 
         System.out.println ("    Tile: " + __selectedLoc.getCol () + "-" + __valToChar (__selectedLoc.getRow ()));
