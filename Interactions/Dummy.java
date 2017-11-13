@@ -120,7 +120,7 @@ public class Dummy implements Interaction {
     public Tile.LocationConst selectATile () {
 
         __showBoard ();
-/*
+//
         if (__buffRead != null) {
             
             try {
@@ -130,7 +130,7 @@ public class Dummy implements Interaction {
             }
             catch (IOException e) { e.printStackTrace (); }
         }
-*/
+//
         __selectedLoc = __tileQueue.getNextTile ();
 
         System.out.println ("    Tile: " + __selectedLoc.getCol () + "-" + __valToChar (__selectedLoc.getRow ()));
