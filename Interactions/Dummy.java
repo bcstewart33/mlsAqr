@@ -27,28 +27,30 @@ public class Dummy implements Interaction {
     private static final char[] CHARS = {'-', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
     private static final char[] COMP = {'.', 'C', 'I', 'A', 'F', 'W', 'L', 'T', 'X', '?'};
 
-    private BufferedReader __buffRead;
-    private Runtime __runtime;
-    private Database __data;
-    private Board __board;
+    protected BufferedReader _buffRead;
+    protected Runtime _runtime;
+    protected Database _data;
+    protected Board _board;
 
     private Tile.Queue __tileQueue;
-    private Tile.Location __selectedLoc;
+    protected Tile.Location __selectedLoc;
+
+    public Dummy () {;} //For Derived Classes
 
     public Dummy (Runtime runtime, Database data, Board board) {
 
-        __buffRead = new BufferedReader (new InputStreamReader(System.in));
+        _buffRead = new BufferedReader (new InputStreamReader(System.in));
 
-        __runtime = runtime;
-        __data = data;
-        __board = board;
+        _runtime = runtime;
+        _data = data;
+        _board = board;
 
         __Instantiate ();
     }
 
     public void finalize () {
 
-        try { if (__buffRead != null) { __buffRead.close (); } }
+        try { if (_buffRead != null) { _buffRead.close (); } }
         catch (IOException e) { e.printStackTrace (); }
     }
 
@@ -59,14 +61,14 @@ public class Dummy implements Interaction {
         __selectedLoc = new Tile.Location ();
     }
 
-    private char __valToChar (int val) {
+    protected char _valToChar (int val) {
 
         if (val < 0 || val > 9) { val = 0; }
 
         return CHARS[val];
     }
 
-    private void __showBoard () {
+    protected void _showBoard () {
 
         //Display Board Tiles
         for (int row = 1; row <= Constants.MAX_ROW; row++) {
@@ -75,7 +77,7 @@ public class Dummy implements Interaction {
 
                 Tile.LocationConst loc = new Tile.LocationConst (col, row);
 
-                Tile.Piece tile = __data.getBoardTile (loc);
+                Tile.Piece tile = _data.getBoardTile (loc);
 
                 if (tile != null) {
 
@@ -104,7 +106,7 @@ public class Dummy implements Interaction {
                     //Do not allow selection of these companies
                     break;
                 default:    
-                    int size = __data.getCompanySize (id);
+                    int size = _data.getCompanySize (id);
 
                     System.out.print (COMP[id.ordinal ()] + "-" + size + " | ");
                     break;
@@ -119,21 +121,21 @@ public class Dummy implements Interaction {
     //Interaction Methods
     public Tile.LocationConst selectATile () {
 
-        __showBoard ();
+        _showBoard ();
 //
-        if (__buffRead != null) {
+        if (_buffRead != null) {
             
             try {
 
                 System.out.print ("Press Enter:");
-                String ipt = __buffRead.readLine ();
+                String ipt = _buffRead.readLine ();
             }
             catch (IOException e) { e.printStackTrace (); }
         }
 //
         __selectedLoc = __tileQueue.getNextTile ();
 
-        System.out.println ("    Tile: " + __selectedLoc.getCol () + "-" + __valToChar (__selectedLoc.getRow ()));
+        System.out.println ("    Tile: " + __selectedLoc.getCol () + "-" + _valToChar (__selectedLoc.getRow ()));
 
         return new Tile.LocationConst (__selectedLoc.getCol (), __selectedLoc.getRow ());
     }
