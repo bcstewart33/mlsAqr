@@ -88,7 +88,7 @@ public class DummyInputTile extends Dummy {
 
                 try {
 
-                    System.out.print ("Press Enter:");
+                    System.out.print ("Enter Tile:");
                     String iptStr = _buffRead.readLine ();
 
                     if (__isValidInput (iptStr)) { found = true; }

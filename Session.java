@@ -67,21 +67,33 @@ public class Session {
         if (__interactMap != null) { __interactMap = null; }
     }
 
-    public void setup () {
+    public void setup (Constants.Mode mode, Integer numPlayers) {
 
         System.out.println ("### Setup Game ###");
+        System.out.println ("### Mode: " + mode.ordinal ());
+        System.out.println ("### NumPlayers: " + numPlayers);
+        System.out.println ("##################");
 
-        if (__runtime.getGameMode () == Constants.Mode.Open ||
-            __runtime.getGameMode () == Constants.Mode.Closed)
-        {
+        __runtime.setGameMode (mode);
+        __runtime.setNumPlayers (numPlayers);
+
+        Interaction itx = null;
+
+        if (__runtime.getGameMode () == Constants.Mode.Manual) {
+
+            itx = new DummyInputTile (__runtime, __data, __boardExt);
+        }
+        //else if (__runtime.getGameMode () == Constants.Mode.Network) {
+
+        //}
+        else { //Mode Open | Closed
+
             //Tile.Queue tileQueue = new Tile.Queue ();
 
             //__boardExt.setupTiles (tileQueue);
+            itx = new DummyInputQueue (__runtime, __data, __boardExt);
         }
 
-        __runtime.setNumPlayers (1);
-        //Interaction itx = new DummyInputQueue (__runtime, __data, __boardExt);
-        Interaction itx = new DummyInputTile (__runtime, __data, __boardExt);
         __interactMap.put (0, itx);
     }
 
