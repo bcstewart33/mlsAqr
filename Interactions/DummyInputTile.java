@@ -27,15 +27,7 @@ public class DummyInputTile extends Dummy {
 
     public DummyInputTile (Runtime runtime, Database data, Board board) {
 
-        super ();
-
-        _buffRead = new BufferedReader (new InputStreamReader(System.in));
-
-        _runtime = runtime;
-        _data = data;
-        _board = board;
-
-        __selectedLoc = new Tile.Location ();
+        super (runtime, data, board);
     }
 
     private boolean __isValidInput (String ipt)
@@ -72,8 +64,8 @@ public class DummyInputTile extends Dummy {
                         Integer row = (int) rowStr.charAt(0);
 //System.out.printf ("DBG: [%d:%d]\n", col, row-CHAR_REF+1);
 
-                        __selectedLoc.setCol (col);
-                        __selectedLoc.setRow (row-CHAR_REF+1);
+                        _selectedLoc.setCol (col);
+                        _selectedLoc.setRow (row-CHAR_REF+1);
                     }
                 }
             }
@@ -107,9 +99,9 @@ public class DummyInputTile extends Dummy {
             } while (!found);
         }
 
-        System.out.println ("    Tile: " + __selectedLoc.getCol () + "-" + _valToChar (__selectedLoc.getRow ()));
+        System.out.println ("    Tile: " + _selectedLoc.getCol () + "-" + _valToChar (_selectedLoc.getRow ()));
 
-        return new Tile.LocationConst (__selectedLoc.getCol (), __selectedLoc.getRow ());
+        return new Tile.LocationConst (_selectedLoc.getCol (), _selectedLoc.getRow ());
     }
 
     public void rejectSelectedTile (Constants.TileStatus status) {

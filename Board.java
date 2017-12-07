@@ -236,7 +236,7 @@ public class Board {
         if (__data != null) {
 
             // Determine if a place on board exits for tile
-            if (__data.getBoardTile (location) != null) {
+            if (__isTileUndefined (__data.getBoardTile (location))) {
 
                 Tile.Location newTile = new Tile.Location ();
 

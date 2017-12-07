@@ -22,6 +22,7 @@ CLASSES = \
     Company.java \
     Player.java \
     Interactions/Dummy.java \
+    Interactions/DummyInputQueue.java \
     Interactions/DummyInputTile.java \
     Session.java \
     Game.java \

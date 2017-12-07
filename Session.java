@@ -80,7 +80,7 @@ public class Session {
         }
 
         __runtime.setNumPlayers (1);
-        //Interaction itx = new Dummy (__runtime, __data, __boardExt);
+        //Interaction itx = new DummyInputQueue (__runtime, __data, __boardExt);
         Interaction itx = new DummyInputTile (__runtime, __data, __boardExt);
         __interactMap.put (0, itx);
     }

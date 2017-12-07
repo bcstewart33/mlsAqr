@@ -22,7 +22,7 @@ import game.aqr.Board;
 import game.aqr.Company;
 import game.aqr.Interaction;
 
-public class Dummy implements Interaction {
+public abstract class Dummy implements Interaction {
 
     private static final char[] CHARS = {'-', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
     private static final char[] COMP = {'.', 'C', 'I', 'A', 'F', 'W', 'L', 'T', 'X', '?'};
@@ -32,12 +32,9 @@ public class Dummy implements Interaction {
     protected Database _data;
     protected Board _board;
 
-    private Tile.Queue __tileQueue;
-    protected Tile.Location __selectedLoc;
+    protected Tile.Location _selectedLoc;
 
-    public Dummy () {;} //For Derived Classes
-
-    public Dummy (Runtime runtime, Database data, Board board) {
+    protected Dummy (Runtime runtime, Database data, Board board) {
 
         _buffRead = new BufferedReader (new InputStreamReader(System.in));
 
@@ -45,20 +42,13 @@ public class Dummy implements Interaction {
         _data = data;
         _board = board;
 
-        __Instantiate ();
+        _selectedLoc = new Tile.Location ();
     }
 
     public void finalize () {
 
         try { if (_buffRead != null) { _buffRead.close (); } }
         catch (IOException e) { e.printStackTrace (); }
-    }
-
-    private void __Instantiate () {
-
-        __tileQueue = new Tile.Queue ();
-
-        __selectedLoc = new Tile.Location ();
     }
 
     protected char _valToChar (int val) {
@@ -119,49 +109,6 @@ public class Dummy implements Interaction {
     }
 
     //Interaction Methods
-    public Tile.LocationConst selectATile () {
-
-        _showBoard ();
-//
-        if (_buffRead != null) {
-            
-            try {
-
-                System.out.print ("Press Enter:");
-                String ipt = _buffRead.readLine ();
-            }
-            catch (IOException e) { e.printStackTrace (); }
-        }
-//
-        __selectedLoc = __tileQueue.getNextTile ();
-
-        System.out.println ("    Tile: " + __selectedLoc.getCol () + "-" + _valToChar (__selectedLoc.getRow ()));
-
-        return new Tile.LocationConst (__selectedLoc.getCol (), __selectedLoc.getRow ());
-    }
-
-    public void rejectSelectedTile (Constants.TileStatus status) {
-
-        System.out.println ("    ----Rejected!");
-
-        if (status == Constants.TileStatus.Unplayable) {
-
-            __tileQueue.returnTile (__selectedLoc);
-        }
-    }
-
-    public Constants.CompanyId selectACompany (Constants.CompanySet companies) {
-
-        Constants.CompanyId result = Constants.CompanyId.UNDEF;
-
-        for (Constants.CompanyId id : Constants.CompanyId.values ()) {
-
-            if (companies.get(id) == true) { result = id; break; }
-        }
-
-        return result;
-    }
-
     public Constants.StockOrder orderStock () {
 
         Constants.StockOrder result = new Constants.StockOrder ();
