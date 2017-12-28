@@ -1,6 +1,6 @@
 /*******************************************************************
 *
-*   Source File: Game.java
+*   Source File: Dummy.java
 *   Description: Interface for all game classes
 *   Date:        Mon Sept 28 2017
 *
@@ -11,7 +11,7 @@ package game.aqr;
 import game.aqr.Constants;
 import game.aqr.Session;
 
-public class Game {
+public class Dummy {
 
     public static void main (String [] args)
     {

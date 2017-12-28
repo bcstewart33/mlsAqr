@@ -25,9 +25,9 @@ CLASSES = \
     Interactions/DummyInputQueue.java \
     Interactions/DummyInputTile.java \
     Session.java \
-    Game.java \
+    Dummy.java \
 
-MAIN = Game
+MAIN = Dummy
 
 default: classes
 

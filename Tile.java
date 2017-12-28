@@ -292,7 +292,7 @@ public abstract class Tile {
 
             boolean result = false;
 
-            if (__queueTop >= 0) { result = true; }
+            if (__queueTop < 0) { result = true; }
 
             return result;
         }

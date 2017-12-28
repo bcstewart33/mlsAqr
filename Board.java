@@ -54,6 +54,15 @@ public class Board {
     }
 
     //Private Methods
+    private boolean __isTileUndefined (Tile.Piece tile)
+    {
+        boolean result = true;
+
+        if (tile != null) { if (tile.getCompanyId () != Constants.CompanyId.UNDEF) { result = false; } }
+
+        return result;
+    }
+
     private boolean __isTileAHotel (Tile.LocationConst location) {
 
         //Determine if the given tile is a hotel
@@ -67,6 +76,124 @@ public class Board {
             if (tile != null && tile.getCompanyId () != Constants.CompanyId.BLK) { result = true; }
         }
 
+        return result;
+    }
+    // This routine determines if the given point will start a
+    // company on the board.
+    private boolean __willTileStartCompany (Tile.LocationConst location) {
+
+        boolean result = true;
+
+        for (int ix = 0; ix < 4; ix++) { __adj[ix].clear (); }
+        for (int jx = 0; jx < 3; jx++) { __nextadj[jx].clear (); }
+
+        int col = location.getCol ();
+        int row = location.getRow ();
+
+        //Get all adjacent points
+        if (col == 1) { ; }
+        else {
+
+            __adj[Direction.LFT.ordinal ()].setCol (col - 1);
+            __adj[Direction.LFT.ordinal ()].setRow (location.getRow ());
+        }
+
+        if (col == Constants.MAX_COL) { ; }
+        else {
+
+            __adj[Direction.RHT.ordinal ()].setCol (col + 1);
+            __adj[Direction.RHT.ordinal ()].setRow (location.getRow ());
+        }
+
+        if (row == 1) { ; }
+        else {
+
+            __adj[Direction.TOP.ordinal ()].setCol (location.getCol ());
+            __adj[Direction.TOP.ordinal ()].setRow (row - 1);
+        }
+
+        if (row == Constants.MAX_ROW) { ; }
+        else {
+
+            __adj[Direction.BOT.ordinal ()].setCol (location.getCol ());
+            __adj[Direction.BOT.ordinal ()].setRow (row + 1);
+        }
+
+//System.out.print ("DEBUG: board.willTile [" + col + ", " + row + "] -> adjacent[");
+//for (int ix = 0; ix < 4; ix++) {        
+//    System.out.print ("(" + __adj[ix].getCol () + ", " + __adj[ix].getRow () + ")");
+//}
+//System.out.println ("]");
+
+        // If the given tile is company then exit & return FALSE
+        if (__isTileAHotel (location)) {
+
+            result = false;
+        }
+        else {
+            // If any of the adjacent cells is in a company then exit and
+            // return FALSE
+            for (Direction ix : Direction.values ()) {
+
+                if (__isTileAHotel (__adj[ix.ordinal ()])) {
+
+                    result = false; break;
+                }
+            }
+
+            if (result) {
+
+                result = false;
+
+                // Continue Checking now that you know all points are not
+                // part of a company
+                if (!result && __adj[Direction.LFT.ordinal ()].getCol () != 0) {
+
+                    __nextadj[0].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[0].decrCol (1);
+                    __nextadj[1].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[1].decrRow (1);
+                    __nextadj[2].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[2].incrRow (1);
+
+                    if (!__isTileAHotel (__nextadj[0]) &&
+                        !__isTileAHotel (__nextadj[1]) &&
+                        !__isTileAHotel (__nextadj[2])) { result = true; }
+                }
+
+                if (!result && __adj[Direction.RHT.ordinal ()].getCol () != 0) {
+
+                    __nextadj[0].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[0].incrCol (1);
+                    __nextadj[1].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[1].decrRow (1);
+                    __nextadj[2].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[2].incrRow (1);
+
+                    if (!__isTileAHotel (__nextadj[0]) &&
+                        !__isTileAHotel (__nextadj[1]) &&
+                        !__isTileAHotel (__nextadj[2])) { result = true; }
+                }
+
+                if (!result && __adj[Direction.TOP.ordinal ()].getCol () != 0) {
+
+                    __nextadj[0].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[0].decrCol (1);
+                    __nextadj[1].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[1].incrCol (1);
+                    __nextadj[2].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[2].decrRow (1);
+
+                    if (!__isTileAHotel (__nextadj[0]) &&
+                        !__isTileAHotel (__nextadj[1]) &&
+                        !__isTileAHotel (__nextadj[2])) { result = true; }
+                }
+
+                if (!result && __adj[Direction.BOT.ordinal ()].getCol () != 0) {
+
+                    __nextadj[0].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[0].decrCol (1);
+                    __nextadj[1].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[1].incrCol (1);
+                    __nextadj[2].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[2].incrRow (1);
+
+                    if (!__isTileAHotel (__nextadj[0]) &&
+                        !__isTileAHotel (__nextadj[1]) &&
+                        !__isTileAHotel (__nextadj[2])) { result = true; }
+                }
+            }
+        }
+
+//System.out.println ("DEBUG:      .willTile Result: " + (result ? "T" : "F"));
         return result;
     }
 
@@ -97,10 +224,12 @@ public class Board {
     }
     */
 
-    public void setupTiles (Tile.Queue tileQueue) {
+    public void initializeTileQueue () {
 
-        __tileQueue = tileQueue;
+        if (__tileQueue == null) { __tileQueue = new Tile.Queue (); }
     }
+
+    public Tile.Queue getTileQueue () { return __tileQueue; }
 
     public void changeTiles (Constants.CompanyId company, Tile.LocationConst location) {
 
@@ -215,15 +344,6 @@ public class Board {
        }
     }
     */
-
-    private boolean __isTileUndefined (Tile.Piece tile)
-    {
-        boolean result = true;
-
-        if (tile != null) { if (tile.getCompanyId () != Constants.CompanyId.UNDEF) { result = false; } }
-
-        return result;
-    }
 
     public Constants.TileStatus checkTile (
         Tile.LocationConst location,
@@ -358,131 +478,13 @@ System.out.println ("DBG: company " + company.get ().ordinal ());
         return status;
     }
 
-    // This routine determines if the given point will start a
-    // company on the board.
-    private boolean __willTileStartCompany (Tile.LocationConst location) {
-
-        boolean result = true;
-
-        for (int ix = 0; ix < 4; ix++) { __adj[ix].clear (); }
-        for (int jx = 0; jx < 3; jx++) { __nextadj[jx].clear (); }
-
-        int col = location.getCol ();
-        int row = location.getRow ();
-
-        //Get all adjacent points
-        if (col == 1) { ; }
-        else {
-
-            __adj[Direction.LFT.ordinal ()].setCol (col - 1);
-            __adj[Direction.LFT.ordinal ()].setRow (location.getRow ());
-        }
-
-        if (col == Constants.MAX_COL) { ; }
-        else {
-
-            __adj[Direction.RHT.ordinal ()].setCol (col + 1);
-            __adj[Direction.RHT.ordinal ()].setRow (location.getRow ());
-        }
-
-        if (row == 1) { ; }
-        else {
-
-            __adj[Direction.TOP.ordinal ()].setCol (location.getCol ());
-            __adj[Direction.TOP.ordinal ()].setRow (row - 1);
-        }
-
-        if (row == Constants.MAX_ROW) { ; }
-        else {
-
-            __adj[Direction.BOT.ordinal ()].setCol (location.getCol ());
-            __adj[Direction.BOT.ordinal ()].setRow (row + 1);
-        }
-
-//System.out.print ("DEBUG: board.willTile [" + col + ", " + row + "] -> adjacent[");
-//for (int ix = 0; ix < 4; ix++) {        
-//    System.out.print ("(" + __adj[ix].getCol () + ", " + __adj[ix].getRow () + ")");
-//}
-//System.out.println ("]");
-
-        // If the given tile is company then exit & return FALSE
-        if (__isTileAHotel (location)) {
-
-            result = false;
-        }
-        else {
-            // If any of the adjacent cells is in a company then exit and
-            // return FALSE
-            for (Direction ix : Direction.values ()) {
-
-                if (__isTileAHotel (__adj[ix.ordinal ()])) {
-
-                    result = false; break;
-                }
-            }
-
-            if (result) {
-
-                result = false;
-
-                // Continue Checking now that you know all points are not
-                // part of a company
-                if (!result && __adj[Direction.LFT.ordinal ()].getCol () != 0) {
-
-                    __nextadj[0].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[0].decrCol (1);
-                    __nextadj[1].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[1].decrRow (1);
-                    __nextadj[2].copy (__adj[Direction.LFT.ordinal ()]); __nextadj[2].incrRow (1);
-
-                    if (!__isTileAHotel (__nextadj[0]) &&
-                        !__isTileAHotel (__nextadj[1]) &&
-                        !__isTileAHotel (__nextadj[2])) { result = true; }
-                }
-
-                if (!result && __adj[Direction.RHT.ordinal ()].getCol () != 0) {
-
-                    __nextadj[0].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[0].incrCol (1);
-                    __nextadj[1].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[1].decrRow (1);
-                    __nextadj[2].copy (__adj[Direction.RHT.ordinal ()]); __nextadj[2].incrRow (1);
-
-                    if (!__isTileAHotel (__nextadj[0]) &&
-                        !__isTileAHotel (__nextadj[1]) &&
-                        !__isTileAHotel (__nextadj[2])) { result = true; }
-                }
-
-                if (!result && __adj[Direction.TOP.ordinal ()].getCol () != 0) {
-
-                    __nextadj[0].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[0].decrCol (1);
-                    __nextadj[1].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[1].incrCol (1);
-                    __nextadj[2].copy (__adj[Direction.TOP.ordinal ()]); __nextadj[2].decrRow (1);
-
-                    if (!__isTileAHotel (__nextadj[0]) &&
-                        !__isTileAHotel (__nextadj[1]) &&
-                        !__isTileAHotel (__nextadj[2])) { result = true; }
-                }
-
-                if (!result && __adj[Direction.BOT.ordinal ()].getCol () != 0) {
-
-                    __nextadj[0].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[0].decrCol (1);
-                    __nextadj[1].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[1].incrCol (1);
-                    __nextadj[2].copy (__adj[Direction.BOT.ordinal ()]); __nextadj[2].incrRow (1);
-
-                    if (!__isTileAHotel (__nextadj[0]) &&
-                        !__isTileAHotel (__nextadj[1]) &&
-                        !__isTileAHotel (__nextadj[2])) { result = true; }
-                }
-            }
-        }
-
-//System.out.println ("DEBUG:      .willTile Result: " + (result ? "T" : "F"));
-        return result;
-    }
-
     public boolean canGameEnd () {
 
         boolean result = false;
 
         if (__tileQueue != null && __tileQueue.isEmpty ()) {
 
+            System.out.println ("DEBUG: Tile Queue is empty");
             result = true;
         }
         else {
@@ -498,6 +500,7 @@ System.out.println ("DBG: company " + company.get ().ordinal ());
 
                     if (__willTileStartCompany (loc)) {
 
+                        System.out.println ("DEBUG: Game Can End, no place to start new company");
                         result = true;
 
                         col = Constants.MAX_COL + 1;
@@ -507,9 +510,6 @@ System.out.println ("DBG: company " + company.get ().ordinal ());
             }
         }   
 
-if (result) {
-    System.out.println ("DEBUG: Game Can End, no place to start new company");
-}
         return result;
     }
 };

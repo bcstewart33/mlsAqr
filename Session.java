@@ -79,22 +79,24 @@ public class Session {
 
         Interaction itx = null;
 
-        if (__runtime.getGameMode () == Constants.Mode.Manual) {
+        for (int ix = 0; ix < numPlayers; ix++) {
 
-            itx = new DummyInputTile (__runtime, __data, __boardExt);
+            if (__runtime.getGameMode () == Constants.Mode.Manual) {
+
+                itx = new DummyInputTile (__runtime, __data, __boardExt);
+            }
+            //else if (__runtime.getGameMode () == Constants.Mode.Network) {
+
+            //}
+            else { //Mode Open | Closed
+
+                __boardExt.initializeTileQueue ();
+
+                itx = new DummyInputQueue (__runtime, __data, __boardExt);
+            }
+
+            __interactMap.put (ix, itx);
         }
-        //else if (__runtime.getGameMode () == Constants.Mode.Network) {
-
-        //}
-        else { //Mode Open | Closed
-
-            //Tile.Queue tileQueue = new Tile.Queue ();
-
-            //__boardExt.setupTiles (tileQueue);
-            itx = new DummyInputQueue (__runtime, __data, __boardExt);
-        }
-
-        __interactMap.put (0, itx);
     }
 
     public void run () {
@@ -136,6 +138,8 @@ public class Session {
 
         //Play Tile
         boolean tileIsInvalid = false;
+
+        System.out.println ("### Player" + __currentPlayerId + " ###");
 
         do {
 

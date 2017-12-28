@@ -25,20 +25,20 @@ import game.aqr.interact.Dummy;
 
 public class DummyInputQueue extends Dummy {
 
-    private Tile.Queue __tileQueue;
+    private Tile.Queue __tileQueue = null;
 
     public DummyInputQueue (Runtime runtime, Database data, Board board) {
 
         super (runtime, data, board);
 
-        __tileQueue = new Tile.Queue ();
+        __tileQueue = board.getTileQueue ();
     }
 
     //Interaction Methods
     public Tile.LocationConst selectATile () {
 
         _showBoard ();
-//
+
         if (_buffRead != null) {
             
             try {
@@ -48,7 +48,7 @@ public class DummyInputQueue extends Dummy {
             }
             catch (IOException e) { e.printStackTrace (); }
         }
-//
+
         _selectedLoc = __tileQueue.getNextTile ();
 
         System.out.println ("    Tile: " + _selectedLoc.getCol () + "-" + _valToChar (_selectedLoc.getRow ()));
