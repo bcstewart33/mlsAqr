@@ -141,6 +141,19 @@ public class Session {
 
         System.out.println ("### Player" + __currentPlayerId + " ###");
 
+        byte[] data = __data.getCurrentState ();
+
+System.out.print ("DEBUG: Pack(" + data.length + ")[");
+
+        for (int ix = 0; ix < data.length; ix++) {
+            System.out.print (data[ix] + ", ");
+        }
+System.out.println ("]");
+
+        if (__data.setCurrentState (data)) { ; }
+        else {
+System.out.println ("ERROR: setting current state!");
+        }
         do {
 
             Tile.LocationConst loc = itx.selectATile ();

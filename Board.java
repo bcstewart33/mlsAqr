@@ -254,6 +254,11 @@ public class Board {
 
                 __data.setCompanySize (company, ++companySize);
 
+                if (companySize > Constants.MAX_DEFUNCT_SIZE) {
+
+                    __data.setCompanyStatus (company, Constants.CompanyStatus.Safe);
+                }
+
                 if (location.getCol () != 1) { //Update tile to left
 
 //System.out.println ("DEBUG:             -> LFT");

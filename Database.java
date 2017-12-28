@@ -9,9 +9,20 @@
 
 package game.aqr;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import game.aqr.Tile;
 
 public interface Database {
+
+    //database Methods
+    public byte[] getCurrentState ();
+    public boolean setCurrentState (byte[] data);
 
     //board Methods
     public boolean playBoardTile (Tile.LocationConst loc, Constants.CompanyId id);
@@ -207,6 +218,154 @@ class DatabaseImpl implements Database {
             __player[ix].profit = Constants.PROFIT_START;
             __player[ix].stockCount.clear ();
         }
+    }
+
+    //Database Methods
+    public byte[] getCurrentState () {
+
+        byte[] result = null;
+        ArrayList<Byte> data = new ArrayList<Byte>();
+
+        try {
+
+            byte elem = 0;
+            byte lpTile = (byte) 0xFF;
+
+            //Add the tiles of the board
+            for (int col = 1; col <= Constants.MAX_COL; col++) {
+
+                for (int row = 1; row <= Constants.MAX_ROW; row++) {
+
+                    int val = __board[col][row].getCompanyId ().ordinal ();
+
+                    if (val <= 0) { //UNDEF
+
+                        elem = 0x0;
+                    }
+                    else if (val <= 8) { //Valid Company
+
+                        elem = (byte) (0x1 << (val - 1));
+                    }
+                    else { //MAX
+
+                        elem = (byte) 0xFF;
+                    }
+
+                    data.add (elem);
+
+                    //Last Played Tile
+                    if (__board[col][row].getHighLight ()) { lpTile = (byte) (((col - 1) * Constants.MAX_ROW) + row); }
+                }
+            }
+
+            //Add Last Played Tile
+            data.add (lpTile);
+
+            //Add Company Sizes
+            for (Constants.CompanyId id : Constants.CompanyId.values ()) {
+
+                switch (id) {
+
+                    case UNDEF:
+                    case BLK:
+                    case MAX:
+                        data.add ((byte) 0xFF);
+                        data.add ((byte) 0xFF);
+                        break;
+                    default:
+                        data.add ((byte) getCompanySize (id));
+                        data.add ((byte) getCompanyStatus (id).ordinal ());
+                        break;
+                }
+            }
+
+            //Pack the data into a byte[]
+            int ix = 0;
+            result = new byte[data.size ()];
+
+            for (Byte bt: data) {
+
+                result[ix++] = bt.byteValue ();
+            }
+        }
+        catch (Exception ex) {
+
+            result = null;
+        }
+        finally {
+        }
+
+        return result;
+    }
+
+    public boolean setCurrentState (byte[] data) {
+
+        boolean result = false;
+
+        try {
+
+System.out.print ("DEBUG: Unpack[");
+            //Add data to board
+            for (int ix = 0; ix < (Constants.MAX_TILES); ix++) {
+
+                Constants.CompanyId comp = Constants.CompanyId.UNDEF;
+
+                if (data[ix] == 0x0) {
+                   //Already defined 
+                }
+                else if (data[ix] == (byte) 0xFF) {
+
+                    comp = Constants.CompanyId.MAX;
+                }
+                else {
+
+                    boolean found = false;
+                    int jx = 0;
+
+                    do {
+
+                        if ((data[ix] & (0x1 << jx)) != 0) { found = true; }
+                        else { jx++; }
+                    } while (found == false && jx < 8);
+
+                    comp = Constants.CompanyId.values()[jx + 1];
+
+                }
+
+                System.out.print (comp.ordinal () + ", ");
+            }
+
+            //Add Last Tile Played
+System.out.println ("], LastPlayed[" + data[Constants.MAX_TILES] + "], ");
+
+            int ix = Constants.MAX_TILES + 1;
+System.out.print ("Company [");
+            //Add Company Sizes
+            for (Constants.CompanyId id : Constants.CompanyId.values ()) {
+
+                switch (id) {
+
+                    case UNDEF:
+                    case BLK:
+                    case MAX:
+                        //Nothing to add
+                        ix++; ix++;
+                        break;
+                    default:
+System.out.print ("{" + id.toString () + "}(" + data[ix++] + ", " + data[ix++] + "), ");
+                        break;
+                }
+            }
+
+System.out.println ("]");
+            result = true;
+        }
+        catch (Exception ex) {
+        }
+        finally {
+        }
+
+        return result;
     }
 
     //Board Methods
